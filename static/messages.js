@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // if message was created by the user itself add data attribute and delete button
             if (`${data.author}` == display_name) {
                 const btn = document.createElement("BUTTON");
+                btn.className = 'delete';
                 btn.setAttribute('data-delete', `${data.new_message}`);
                 const t = document.createTextNode("Delete");
                 btn.appendChild(t);
@@ -46,18 +47,30 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 document.querySelector('#messages').append(li);
             }
-            // send button.dataset.delete message to be deleted from the dictinary
-            document.querySelectorAll('button').forEach(button => {
-                button.onclick = () => {
-                    const selection = button.dataset.delete;
+
+            // send button.dataset.delete message to be deleted from the message_channel dictinary
+            // and use animation and delete on the fly for the messsage sender
+            document.addEventListener('click', event => {
+                const element = event.target;
+                if (element.className === 'delete') {
+                    const selection = element.dataset.delete;
+
+                    element.parentElement.style.animationPlayState = 'running';
+                    element.parentElement.addEventListener('animationend', () =>  {
+                        element.parentElement.remove();
+                    });
+
                     socket.emit('delete msg', {'selection': selection, 'selected_channel': localStorage.getItem('last_channel')});
-                };
+                }
             });
+
           }
       });
 
       // refresh page once message was deleted
       socket.on('delete msg io', data => {
+          if (`${data.display_name}` != display_name) {
               location.reload();
+          }
       });
 });

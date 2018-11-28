@@ -180,12 +180,17 @@ def direct(data):
 def delete_msg(data):
     # delete message from the channel messages
     selection = data["selection"]
+
+    # extract display_name from
+    splited = selection.split()
+    display_name = splited[2][:-1]
+
     selected_channel = data["selected_channel"]
     message_delete_list = message_channel[selected_channel][:]
     if selection in message_delete_list:
         message_delete_list.remove(selection)
         message_channel[selected_channel] = message_delete_list[:]
-    emit("delete msg io", broadcast=True)
+    emit("delete msg io", {'display_name': display_name}, broadcast=True)
 
 
 @socketio.on("delete direct")
